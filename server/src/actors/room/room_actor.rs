@@ -21,7 +21,7 @@ mod leave_room;
 mod vote;
 
 use crate::actors::messages::{ClientResponseMessage, RoomMessage};
-use crate::data::UserData;
+use sizematters_shared::UserData;
 use actix::{Actor, Context, Handler, Recipient};
 use std::collections::HashMap;
 use rand::Rng;

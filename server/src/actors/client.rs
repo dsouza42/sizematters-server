@@ -22,11 +22,10 @@ use serde_json::Error;
 use std::time::Duration;
 use std::time::Instant;
 use uuid::Uuid;
-use bytestring::ByteString;
 
 use super::RoomManagerActor;
 use crate::actors::messages::{ClientRequestMessage, ClientResponseMessage, RoomMessage};
-use crate::data::UserData;
+use sizematters_shared::UserData;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -61,6 +60,10 @@ impl Actor for ClientActor {
     fn started(&mut self, ctx: &mut Self::Context) {
         self.heartbeat(ctx);
     }
+
+    fn stopped(&mut self, _ctx: &mut Self::Context) {
+        self.user_left();
+    }
 }
 
 /// Handler for `ws::Message`
@@ -75,7 +78,7 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for ClientActor {
             Ok(ws::Message::Pong(_)) => {
                 self.last_heartbeat = Instant::now();
             }
-            Ok(ws::Message::Text(text)) => self.text(text, ctx),
+            Ok(ws::Message::Text(text)) => self.text(text.to_string(), ctx),
             Ok(ws::Message::Binary(_bin)) => {} // ignore binary
             Ok(ws::Message::Close(reason)) => {
                 self.user_left();
@@ -88,13 +91,11 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for ClientActor {
 }
 
 impl ClientActor {
-    fn text(&mut self, msg: ByteString, ctx: &mut <Self as Actor>::Context) {
-        // println!("WS: {:?}", msg);
+    fn text(&mut self, msg: String, ctx: &mut <Self as Actor>::Context) {
         if msg.len() > 1024 {
             self::Handler::handle(self, ClientResponseMessage::Error { msg: String::from("Message dropped: max size exceeded.") }, ctx);
             return;
         }
-        let msg = msg.to_string();
         let client_msg: Result<ClientRequestMessage, Error> = serde_json::from_str(msg.as_str());
         match client_msg {
             Ok(client_msg) => self.client_msg(client_msg, ctx),
