@@ -16,43 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use crate::data::UserData;
-use actix::prelude::*;
-use serde::{Deserialize, Serialize};
-use std::clone::Clone;
-use std::collections::HashMap;
+pub use sizematters_shared::{ClientRequestMessage, ClientResponseMessage, UserData};
 
-/// Messages sent from the client to the server.
-#[derive(Message, Deserialize)]
-#[serde(tag = "type", content = "data")]
-#[rtype(result = "()")]
-pub enum ClientRequestMessage {
-    Register,
-    SetName {
-        name: String,
-    },
-    SetAvatar {
-        avatar: String,
-    },
-    JoinRoom {
-        room_name: String,
-        password: String,
-        password_is_hash: bool,
-    },
-    LeaveRoom {
-        room_name: String,
-    },
-    Vote {
-        room_name: String,
-        size: u64,
-    },
-    NewVote {
-        room_name: String,
-    },
-    Randomize {
-        room_name: String,
-    },
-}
+use actix::prelude::*;
+use std::clone::Clone;
 
 /// messages sent to a RoomActor
 #[derive(Message, Clone)]
@@ -89,63 +56,5 @@ pub enum RoomMessage {
     },
     Randomize {
         room_name: String,
-    },
-}
-
-/// Messages sent to the client
-#[derive(Message, Serialize, Clone)]
-#[serde(tag = "type", content = "data")]
-#[rtype(result = "()")]
-pub enum ClientResponseMessage {
-    RoomJoined {
-        room_name: String,
-        hashed_password: String,
-        users: Vec<UserData>,
-        votes_cast: usize,
-    },
-    UserJoined {
-        room_name: String,
-        user: UserData,
-    },
-    UserLeft {
-        room_name: String,
-        user_id: String,
-    },
-    UserUpdated {
-        user: UserData,
-    },
-    OwnData {
-        user: UserData,
-    },
-    OwnVote {
-        room_name: String,
-        size: u64,
-    },
-    VoteStatus {
-        room_name: String,
-        votes: HashMap<String, bool>,
-    },
-    VoteResults {
-        room_name: String,
-        votes: HashMap<String, u64>,
-    },
-    NewVote {
-        room_name: String,
-    },
-    AlreadyInRoom {
-        room_name: String,
-    },
-    WrongPassword {
-        room_name: String,
-    },
-    Randomized {
-        room_name: String,
-        selected_user_id: String,
-    },
-    InvalidRoomName,
-    VotingOver,
-    CannotJoinMultipleRooms,
-    Error {
-        msg: String,
     },
 }
