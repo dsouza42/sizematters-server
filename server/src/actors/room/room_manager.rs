@@ -18,7 +18,7 @@
 
 use crate::actors::messages::{ClientResponseMessage, RoomMessage};
 use crate::actors::room::RoomActor;
-use crate::data::UserData;
+use sizematters_shared::UserData;
 use actix::prelude::*;
 use actix::Actor;
 use regex::Regex;
@@ -40,7 +40,7 @@ impl RoomManagerActor {
         Self {
             rooms: HashMap::new(),
             user_room_map: HashMap::new(),
-            room_name_validator: Regex::new(r"^[-_a-zA-Z]{1,50}$").unwrap(),
+            room_name_validator: Regex::new(r"^[-_a-zA-Z0-9]{1,50}$").unwrap(),
         }
     }
 }
@@ -72,8 +72,9 @@ impl Handler<RoomMessage> for RoomManagerActor {
             RoomMessage::UserLeft { user_id } => self.user_left(user_id),
             RoomMessage::Vote { ref room_name, .. } => self.forward(room_name.clone(), msg),
             RoomMessage::NewVote { ref room_name, .. } => self.forward(room_name.clone(), msg),
-            RoomMessage::RoomClosing { room_name } => self.room_closing(room_name),
             RoomMessage::Randomize { ref room_name } => self.forward(room_name.clone(), msg),
+            RoomMessage::RoomClosing { room_name } => self.room_closing(room_name),
+            #[allow(unreachable_patterns)]
             _ => {}
         };
     }

@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+echo "Building frontend..."
+(cd frontend && trunk build)
+
+echo "Starting server on http://127.0.0.1:8080"
+cargo run -p sizematters-server

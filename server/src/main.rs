@@ -17,11 +17,9 @@
  */
 
 mod actors;
-mod data;
 
 use actix::{Actor, Addr};
-use actix_web::{middleware::Logger, web, App, Error, HttpRequest, HttpResponse, HttpServer};
-use actix_web::web::Data;
+use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer};
 use actix_web_actors::ws;
 
 use actors::ClientActor;
@@ -33,11 +31,8 @@ async fn ws_index(
     stream: web::Payload,
     room_manager: web::Data<Addr<RoomManagerActor>>,
 ) -> Result<HttpResponse, Error> {
-    //println!("{:?}", r);
     let room_manager_addr = room_manager.get_ref().clone();
-    let res = ws::start(ClientActor::new(room_manager_addr), &r, stream);
-    //println!("{:?}", res);
-    res
+    ws::start(ClientActor::new(room_manager_addr), &r, stream)
 }
 
 #[actix_web::main]
@@ -49,13 +44,22 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(Data::new(room_manager.clone()))
-            // enable logger
-            .wrap(Logger::default())
+            .app_data(web::Data::new(room_manager.clone()))
+            .wrap(middleware::Logger::default())
             // websocket route
-            .service(web::resource("/").route(web::get().to(ws_index)))
+            .service(web::resource("/ws").route(web::get().to(ws_index)))
+            // serve frontend
+            .service(
+                actix_files::Files::new("/", "./dist")
+                    .index_file("index.html")
+                    .default_handler(
+                        web::to(|| async {
+                            actix_files::NamedFile::open_async("./dist/index.html").await
+                        }),
+                    ),
+            )
     })
-    .bind("127.0.0.1:9001")?
+    .bind("127.0.0.1:8080")?
     .run()
     .await
 }
