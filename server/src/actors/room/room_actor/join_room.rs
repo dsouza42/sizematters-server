@@ -19,7 +19,7 @@
 use crate::actors::messages::ClientResponseMessage;
 use crate::actors::room::room_actor::{compute_password, ConnectionInfo};
 use crate::actors::room::RoomActor;
-use crate::data::UserData;
+use sizematters_shared::UserData;
 use actix::Recipient;
 use std::borrow::Borrow;
 
