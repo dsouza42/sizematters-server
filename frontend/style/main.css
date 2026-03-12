@@ -225,6 +225,39 @@ html, body {
     margin-top: 16px;
 }
 
+/* Recent rooms */
+#recent-room-list {
+    margin-top: 8px;
+}
+
+#recent-room-list .card {
+    cursor: pointer;
+}
+
+#recent-room-list .card + .card {
+    margin-top: 8px;
+}
+
+#recent-room-list .card:hover {
+    background-color: #e0e0e0;
+}
+
+#recent-room-list .card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.recent-room-delete {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+#recent-room-list .card:hover .recent-room-delete,
+#recent-room-list .card:focus-within .recent-room-delete {
+    opacity: 1;
+}
+
 /* Room component */
 .room + .room {
     margin-top: 16px;
@@ -236,8 +269,12 @@ html, body {
 }
 
 .room .header .card-title {
-    font-size: 14px;
+    font-size: 16px;
     word-break: break-all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .room .user-space {
@@ -272,7 +309,7 @@ html, body {
 }
 
 .user-card .name {
-    font-size: 14px;
+    font-size: 24px;
 }
 
 .user-card .user-pic {
