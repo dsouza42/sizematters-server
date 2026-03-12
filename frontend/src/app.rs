@@ -25,7 +25,6 @@ use crate::stores::{RoomStore, UserStore, VoteStore};
 use crate::ws::WsContext;
 use leptos::prelude::*;
 use leptos_router::components::{Route, Router, Routes};
-use leptos_router::hooks::use_location;
 use leptos_router::path;
 
 #[component]
@@ -61,18 +60,13 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn ContentRouter() -> impl IntoView {
-    let location = use_location();
-    let pathname = move || location.pathname.get();
-
     view! {
+        <MainPage />
         <Routes fallback=|| "Not found">
             <Route path=path!("/room/:room_name/:password") view=ConnectingPage />
             <Route path=path!("/error/:error_type") view=ErrorPage />
             <Route path=path!("/") view=|| () />
         </Routes>
-        <Show when=move || pathname() == "/">
-            <MainPage />
-        </Show>
     }
 }
 
